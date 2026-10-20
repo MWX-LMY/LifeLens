@@ -103,7 +103,7 @@ ollama list
 ```bash
 # 在项目目录构建 Windows 安装包（NSIS）
 npm run dist
-# 产物：dist/LifeLens-Setup-1.0.0.exe
+# 产物：dist/LifeLens-Setup-0.1.0.exe
 ```
 
 - 双击安装包安装（可选安装目录，创建桌面/开始菜单快捷方式）；
@@ -276,6 +276,6 @@ LifeLens/
 
 ## License / 版本
 
-- 版本：1.0.0（`package.json`）
+- 版本：0.1.0（`package.json`）
 - 许可协议：MIT（见 [LICENSE](LICENSE)）
 - 仅支持 Windows 10/11 64 位；隐私：全部数据本地处理，无云上传。

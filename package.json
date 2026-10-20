@@ -1,6 +1,6 @@
 {
   "name": "lifelens",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Life activity tracking - screenshots every 20s with AI analysis via Qwen3-VL",
   "main": "main.js",
   "scripts": {
