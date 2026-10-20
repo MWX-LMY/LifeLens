@@ -1,0 +1,30 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('lifelens', {
+  onCaptureResult: (cb) => ipcRenderer.on('capture-result', (_e, d) => cb(d)),
+  onScreenshotTaken: (cb) => ipcRenderer.on('screenshot-taken', (_e, d) => cb(d)),
+  onAnalyzing: (cb) => ipcRenderer.on('analyzing', (_e, d) => cb(d)),
+  onStateUpdate: (cb) => ipcRenderer.on('state-update', (_e, d) => cb(d)),
+  onSummariesUpdate: (cb) => ipcRenderer.on('summaries-update', (_e, d) => cb(d)),
+  onDiaryResult: (cb) => ipcRenderer.on('diary-result', (_e, d) => cb(d)),
+  onDiaryGenerating: (cb) => ipcRenderer.on('diary-generating', (_e, d) => cb(d)),
+  onStatsResult: (cb) => ipcRenderer.on('stats-result', (_e, d) => cb(d)),
+  onQAToken: (cb) => ipcRenderer.on('qa-token', (_e, d) => cb(d)),
+
+  toggleCapture: () => ipcRenderer.send('toggle-capture'),
+  requestState: () => ipcRenderer.send('request-state'),
+  requestSummaries: () => ipcRenderer.send('request-summaries'),
+  requestDiary: (date) => ipcRenderer.send('request-diary', date),
+  requestStats: (range) => ipcRenderer.send('request-stats', range),
+  requestAllDiaries: () => ipcRenderer.send('request-all-diaries'),
+  askQuestion: (q) => ipcRenderer.send('ask-question', q),
+  showWindow: () => ipcRenderer.send('show-window'),
+  winMinimize: () => ipcRenderer.send('win-minimize'),
+  winMaximize: () => ipcRenderer.send('win-maximize'),
+  winClose: () => ipcRenderer.send('win-close'),
+  getModels: () => ipcRenderer.send('get-models'),
+  onModelsList: (cb) => ipcRenderer.on('models-list', (_e, d) => cb(d)),
+  saveConfig: (cfg) => ipcRenderer.send('save-config', cfg),
+  getConfig: () => ipcRenderer.send('get-config'),
+  onConfigUpdated: (cb) => ipcRenderer.on('config-updated', (_e, d) => cb(d)),
+});

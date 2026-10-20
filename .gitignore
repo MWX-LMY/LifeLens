@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Runtime data (contains screenshots & activity logs — never commit)
+data/
+LifeLens_Data/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+~$*
+*.tmp

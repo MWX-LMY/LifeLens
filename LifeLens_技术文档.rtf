@@ -1,0 +1,72 @@
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset0 Microsoft YaHei;}{\f1\fnil\fcharset0 Consolas;}}
+\vieww12000\viewh15840
+\fs24\b\fs36 LifeLens — AI 活动记录仪 技术文档\b0\fs24\par
+\par
+\b 项目概述\b0\par
+\par
+LifeLens 是一款基于 Electron 的桌面应用，每隔 20 秒自动截取屏幕截图，通过本地运行的 Qwen3-VL 多模态 AI 模型分析用户活动，生成结构化记录、10 分钟汇总、每日日记及多维度可视化看板。\par
+\par
+\b\fs28 一、核心功能\b0\fs24\par
+\par
+\b 每 20s 截屏：\b0 PowerShell 调用 System.Windows.Forms API 截取全屏，保存为 PNG\par
+\b AI 分析截图：\b0 调用本地 Ollama API，使用 Qwen3-VL 8B 模型\par
+\b 按小时 JSON 日志：\b0 data/YYYY-MM/YYYY-MM-DD_HH.json\par
+\b 10 分钟汇总：\b0 每 10 分钟对记录进行二次汇总\par
+\b 每日日记：\b0 基于汇总的二阶 AI 摘要\par
+\b 可视化看板：\b0 Canvas 2D 饼图 + 柱状图\par
+\b 活动热力图：\b0 GitHub 风格 10 分钟粒度展示\par
+\b AI 问答：\b0 Agentic 搜索 + 流式回答\par
+\b 数据清理：\b0 每 6 小时删除 3 天前的截图\par
+\par
+\b\fs28 二、技术栈\b0\fs24\par
+\par
+Electron + Node.js + HTML/CSS/JS + Canvas 2D + PowerShell + Ollama API\par
+\par
+\b 模型：\b0 Qwen3-VL 8B (Q4_K_M 量化)\par
+\b GPU 要求：\b0 NVIDIA 8GB+ 显存\par
+\b 截图方案：\b0 PowerShell .NET API，分析时缩至 800px JPEG\par
+\b 图表绘制：\b0 Canvas 2D 原生 API，12 色炫彩方案\par
+\b 图标设计：\b0 金属透镜 + 青紫渐变 + DNA 神经核心，透明背景\par
+\b 打包工具：\b0 electron-builder NSIS 安装包\par
+\par
+\b\fs28 三、问题处理\b0\fs24\par
+\par
+\b 1. screenshot-desktop 不兼容 Windows 11：\b0 改用 PowerShell 原生截图\par
+\b 2. Electron 下载失败：\b0 使用 npmmirror.com 镜像手动安装\par
+\b 3. Ollama 分析超时：\b0 超时调至 180s，图片缩小 70% 发送\par
+\b 4. UI 高度为 0：\b0 移除 display:block !important，统一 flex 布局\par
+\b 5. HTML 嵌套错误：\b0 补充缺失的闭合标签，修复标签页嵌套\par
+\b 6. 问答无结果：\b0 强制至少搜索一次，无匹配时返回最近记录\par
+\b 7. 汇总中卡死：\b0 sendSummaries 移入 finally 块\par
+\b 8. 日记不更新：\b0 添加汇总数比较逻辑，自动重新生成\par
+\b 9. 打包后无法写入：\b0 使用 app.getPath('userData') 获取可写路径\par
+\par
+\b\fs28 四、项目结构\b0\fs24\par
+\par
+LifeLens/\par
+{\pard \li500\par
+├── main.js          # 主进程\par
+├── preload.js       # IPC 桥接\par
+├── index.html       # UI 界面\par
+├── renderer.js      # 渲染逻辑\par
+├── dist/            # 构建输出\par
+│   ├── LifeLens-Setup-*.exe\par
+│   └── win-unpacked/\par
+└── data/            # 运行时数据\par
+    ├── summaries.json\par
+    ├── diaries.json\par
+    └── YYYY-MM/\par
+        ├── YYYY-MM-DD_HH.json\par
+        └── screenshots/\par
+}\par
+\par
+\b\fs28 五、部署\b0\fs24\par
+\par
+1. 运行 npm run dist 生成安装包\par
+2. 分发 dist/LifeLens-Setup-1.0.0.exe\par
+3. 用户需安装 Ollama + 拉取 qwen3-vl:8b 模型\par
+4. 需要 NVIDIA 8GB+ 显存\par
+\par
+\par
+\b\fs20 文档生成日期：2026-07-27\b0\fs24\par
+}

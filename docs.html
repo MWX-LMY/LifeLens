@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeLens 技术文档</title>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;
+    background:#0b0e14;color:#e2e8f0;line-height:1.8;padding:0;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:40px 24px 80px;}
+  h1{font-size:28px;font-weight:700;color:#00E5FF;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+  h1 small{font-size:14px;color:#8892a8;font-weight:400;}
+  .subtitle{font-size:14px;color:#8892a8;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #1c2333;}
+  h2{font-size:20px;color:#00E5FF;margin:36px 0 16px;padding-bottom:8px;border-bottom:1px solid #1c2333;}
+  h3{font-size:16px;color:#a37ef7;margin:24px 0 12px;}
+  h4{font-size:14px;color:#e2e8f0;margin:16px 0 8px;}
+  p{font-size:14px;color:#8892a8;margin-bottom:12px;line-height:1.8;}
+  ul,ol{padding-left:20px;margin-bottom:16px;}
+  li{font-size:14px;color:#8892a8;margin-bottom:4px;line-height:1.7;}
+  li strong{color:#e2e8f0;}
+  strong{color:#e2e8f0;font-weight:600;}
+  code{font-family:'SF Mono','Consolas',monospace;background:#1a2130;padding:2px 8px;border-radius:4px;font-size:13px;color:#00E5FF;}
+  pre{background:#131822;border:1px solid #1c2333;border-radius:8px;padding:16px;overflow-x:auto;margin-bottom:16px;font-size:13px;line-height:1.6;color:#8892a8;}
+  pre code{background:none;padding:0;color:#8892a8;}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+  th,td{border:1px solid #1c2333;padding:10px 14px;text-align:left;font-size:13px;}
+  th{background:#131822;color:#00E5FF;font-weight:600;}
+  td{color:#8892a8;}
+  .tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px;}
+  .tag-elec{background:rgba(0,229,255,0.12);color:#00E5FF;}
+  .tag-ai{background:rgba(163,126,247,0.12);color:#a37ef7;}
+  .tag-js{background:rgba(210,155,40,0.12);color:#d99b28;}
+  .tag-win{background:rgba(59,201,192,0.12);color:#3bc9c0;}
+  .card{background:#131822;border:1px solid #1c2333;border-radius:10px;padding:16px 20px;margin-bottom:16px;}
+  .card-title{font-size:13px;font-weight:600;color:#00E5FF;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+  .stat-box{background:#131822;border:1px solid #1c2333;border-radius:8px;padding:14px;text-align:center;}
+  .stat-num{font-size:28px;font-weight:700;color:#00E5FF;}
+  .stat-label{font-size:11px;color:#8892a8;margin-top:4px;}
+  .timeline{position:relative;padding-left:24px;margin-bottom:16px;}
+  .timeline::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:#1c2333;}
+  .tl-item{position:relative;margin-bottom:16px;padding-left:12px;}
+  .tl-item::before{content:'';position:absolute;left:-20px;top:6px;width:10px;height:10px;border-radius:50%;background:#00E5FF;}
+  .tl-item .title{font-size:14px;font-weight:600;color:#e2e8f0;}
+  .tl-item .desc{font-size:13px;color:#8892a8;margin-top:2px;}
+  .tl-item .tag{padding:1px 6px;border-radius:3px;font-size:10px;margin-left:6px;}
+  .tag-fix{background:rgba(0,229,255,0.12);color:#00E5FF;}
+  .tag-arch{background:rgba(163,126,247,0.12);color:#a37ef7;}
+  @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+  .arch{background:#131822;border:1px solid #1c2333;border-radius:10px;padding:20px;margin-bottom:20px;font-family:'SF Mono',monospace;font-size:13px;line-height:1.7;}
+  .arch .hl{color:#00E5FF;}
+  .arch .hl2{color:#a37ef7;}
+  .arch .hl3{color:#8892a8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>🔵 LifeLens <small>AI 活动记录仪</small></h1>
+<div class="subtitle">技术文档 — 项目概述、架构设计、实现细节与问题处理</div>
+
+<!-- Stats -->
+<div class="grid-3">
+  <div class="stat-box"><div class="stat-num">Electron</div><div class="stat-label">桌面框架</div></div>
+  <div class="stat-box"><div class="stat-num">Qwen3-VL</div><div class="stat-label">8B 多模态模型</div></div>
+  <div class="stat-box"><div class="stat-num">20s</div><div class="stat-label">截图间隔</div></div>
+</div>
+
+<h2>📋 项目概述</h2>
+<p>LifeLens 是一款基于 Electron 的桌面应用，每隔 <strong>20 秒</strong>自动截取屏幕截图，通过本地运行的 <strong>Qwen3-VL</strong> 多模态 AI 模型分析用户活动，生成结构化记录、10 分钟汇总、每日日记及多维度可视化看板。所有数据存储在本地，不上传云端。</p>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">⚙️ 技术栈</div>
+    <p><span class="tag tag-elec">Electron</span> <span class="tag tag-ai">Qwen3-VL 8B</span> <span class="tag tag-js">Node.js</span> <span class="tag tag-win">PowerShell</span></p>
+    <p style="margin-top:8px;font-size:13px;">前端：HTML + CSS + JavaScript + Canvas 2D<br>
+    后端：Electron 主进程 + Ollama REST API<br>
+    打包：electron-builder NSIS</p>
+  </div>
+  <div class="card">
+    <div class="card-title">💾 数据流</div>
+    <p style="font-size:13px;">截图 → AI 分析 → 每小时 JSON 日志<br>
+    → 10分钟汇总 → 每日日记 → 看板统计</p>
+    <p style="margin-top:8px;font-size:12px;color:#4c5568;">数据目录：%APPDATA%/LifeLens/data/</p>
+  </div>
+</div>
+
+<h2>🏗️ 架构设计</h2>
+<div class="arch">
+<span class="hl3">┌─────────────────────────────────────────┐</span><br>
+<span class="hl3">│</span>         <span class="hl">Electron 主进程 (main.js)</span>          <span class="hl3">│</span><br>
+<span class="hl3">│</span>  ├─ 截图 (PowerShell API)               <span class="hl3">│</span><br>
+<span class="hl3">│</span>  ├─ Ollama API 客户端                    <span class="hl3">│</span><br>
+<span class="hl3">│</span>  ├─ 10分钟汇总引擎                       <span class="hl3">│</span><br>
+<span class="hl3">│</span>  ├─ 日记生成器                           <span class="hl3">│</span><br>
+<span class="hl3">│</span>  ├─ 统计计算                             <span class="hl3">│</span><br>
+<span class="hl3">│</span>  └─ IPC 通信                             <span class="hl3">│</span><br>
+<span class="hl3">└────────────┬────────────────────────────┘</span><br>
+<span class="hl3">             │ IPC</span><br>
+<span class="hl3">┌────────────▼────────────────────────────┐</span><br>
+<span class="hl3">│</span>      <span class="hl2">渲染进程 (index.html + renderer.js)</span>     <span class="hl3">│</span><br>
+<span class="hl3">│</span>  仪表板 │ 动态 │ 日记 │ 看板 │ 问答     <span class="hl3">│</span><br>
+<span class="hl3">└─────────────────────────────────────────┘</span><br>
+<span class="hl3">             │</span><br>
+<span class="hl3">             ▼</span><br>
+<span class="hl3">    ┌─────────────────────┐</span><br>
+<span class="hl3">    │</span>  Ollama (本地运行)   <span class="hl3">│</span><br>
+<span class="hl3">    │</span>  qwen3-vl:8b 模型   <span class="hl3">│</span><br>
+<span class="hl3">    └─────────────────────┘</span><br>
+</div>
+
+<h2>📦 五大模块</h2>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">📊 仪表板</div>
+    <p style="font-size:13px;">实时状态面板。显示运行状态、截图计数、分析队列。右侧时间线展示每次 AI 分析的结果，自动滚动，支持展开/收起长文本。</p>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 动态</div>
+    <p style="font-size:13px;">GitHub 风格热力图展示 10 分钟活动块，颜色区分活动类型。纵向时间线展示汇总详情，可按项目/软件/分类筛选。</p>
+  </div>
+  <div class="card">
+    <div class="card-title">📖 日记</div>
+    <p style="font-size:13px;">所有日记以卡片网格展示（每行 3 列）。每张卡片包含日期、摘要、主要事项、高光、待办、优化建议和温馨提示。可按周筛选。</p>
+  </div>
+  <div class="card">
+    <div class="card-title">📈 看板</div>
+    <p style="font-size:13px;">活动类型饼图、软件使用排名、项目专注排名。支持全部/年/月/周/日时间范围切换。Canvas 2D 绘制，12 色炫彩方案。</p>
+  </div>
+  <div class="card" style="grid-column:1/-1;">
+    <div class="card-title">💬 问答</div>
+    <p style="font-size:13px;">Agentic 搜索 + 流式回答。模型自主决定搜索关键词、时间范围和数数据源，最多 3 轮迭代。结果不足时自动返回最近记录。</p>
+  </div>
+</div>
+
+<h2>🔧 问题处理记录</h2>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="title">截图组件不兼容 Windows 11 <span class="tag tag-fix">FIXED</span></div>
+    <div class="desc">screenshot-desktop npm 包无法调用 .NET 编译器编译截图工具。改用 PowerShell 原生调用 System.Windows.Forms API 截图，无需第三方依赖。</div>
+  </div>
+  <div class="tl-item">
+    <div class="title">Ollama 分析超时 <span class="tag tag-fix">FIXED</span></div>
+    <div class="desc">初始 60s 超时不够，分析频繁中断。图片分析超时调整至 180s，文本汇总 45s。发送前将图片从 1920px 缩小至 800px JPEG，减少 90% 传输量。</div>
+  </div>
+  <div class="tl-item">
+    <div class="title">UI 标签页内容高度为 0 <span class="tag tag-fix">FIXED</span></div>
+    <div class="desc">display:block !important 覆盖 flex 布局，flex-basis:0% 使高度坍缩。移除 !important，统一使用 flex 布局。同时发现 HTML 嵌套错误（日记/问答标签页嵌套在活动标签页内部），补充缺失闭合标签修复。</div>
+  </div>
+  <div class="tl-item">
+    <div class="title">问答搜索空结果 <span class="tag tag-fix">FIXED</span></div>
+    <div class="desc">模型在第一次迭代就设置 stop:true，未搜索直接回答"0 条记录"。强制至少搜索一次，无匹配时自动返回最近 5 条汇总。</div>
+  </div>
+  <div class="tl-item">
+    <div class="title">"汇总中"状态卡死 <span class="tag tag-fix">FIXED</span></div>
+    <div class="desc">sendSummaries() 在删除汇总状态前调用，渲染器一直显示"汇总中"。将通知移到 finally 块，确保状态清除后通知渲染器。</div>
+  </div>
+  <div class="tl-item">
+    <div class="title">日记不更新 <span class="tag tag-fix">FIXED</span></div>
+    <div class="desc">日记缓存后即使有更多汇总数据也不重新生成。添加汇总数比较逻辑，新汇总多于日记记录数时自动重新生成。</div>
+  </div>
+  <div class="tl-item">
+    <div class="title">打包后无法写入数据 <span class="tag tag-fix">FIXED</span></div>
+    <div class="desc">Electron 打包后 __dirname 指向只读 app.asar。使用 app.getPath('userData') 获取 %APPDATA%/LifeLens/data 可写目录。</div>
+  </div>
+</div>
+
+<h2>📁 项目结构</h2>
+<pre>
+LifeLens/
+├── main.js              # 主进程（截图、AI 分析、汇总、IPC）
+├── preload.js           # IPC 桥接
+├── index.html           # UI 界面（5 个标签页）
+├── renderer.js          # 前端渲染 + 图表绘制
+├── package.json         # 项目配置 + electron-builder 构建
+├── icon.ico             # 应用图标
+├── icon.png             # 图标 PNG
+├── bg.png               # 登录背景图
+├── README.md            # 本文档
+├── dist/
+│   ├── LifeLens-Setup-*.exe  # 安装包
+│   └── win-unpacked/         # 免安装版
+└── data/                # 运行时数据（自动生成）
+    ├── summaries.json   # 10 分钟汇总
+    ├── diaries.json     # 日记数据
+    └── YYYY-MM/         # 按月组织
+        ├── YYYY-MM-DD_HH.json  # 每小时日志
+        └── screenshots/        # 截图
+</pre>
+
+<h2>🚀 部署要求</h2>
+<table>
+  <tr><th>组件</th><th>要求</th></tr>
+  <tr><td>操作系统</td><td>Windows 10/11 64位</td></tr>
+  <tr><td>GPU</td><td>NVIDIA 8GB+ 显存（RTX 3060/4060/5060+）</td></tr>
+  <tr><td>内存</td><td>16GB+</td></tr>
+  <tr><td>运行时</td><td>Ollama + qwen3-vl:8b 模型</td></tr>
+  <tr><td>存储</td><td>10GB+ 可用空间</td></tr>
+</table>
+
+<h2>⚡ 性能数据</h2>
+<div class="grid-3">
+  <div class="stat-box"><div class="stat-num">~5s</div><div class="stat-label">单次 AI 分析</div></div>
+  <div class="stat-box"><div class="stat-num">~30s</div><div class="stat-label">10分钟汇总</div></div>
+  <div class="stat-box"><div class="stat-num">~15s</div><div class="stat-label">日记生成</div></div>
+</div>
+
+<div style="margin-top:40px;padding-top:20px;border-top:1px solid #1c2333;font-size:12px;color:#4c5568;text-align:center;">
+  LifeLens &copy; 2026 — 文档生成日期：2026-07-27
+</div>
+
+</div>
+</body>
+</html>
